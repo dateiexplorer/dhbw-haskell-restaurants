@@ -1,0 +1,122 @@
+-- Testdaten für Programmentwurf restaurants.hs
+-- In einer Zeile steht der Input in der folgenden Zeile der entsprechende
+-- Output.
+
+--------------------------------------------------------------------------------
+-- Aufgabe 1
+-- anzahl :: (Int,Int,Int) -> String -> Int
+-- Liefert die Anzahl verkaufter Artikel
+--------------------------------------------------------------------------------
+
+anzahl (2020,1,1) "*"
+76
+
+anzahl (2020,1,1) "Hamburger"
+5
+
+-- Eine 0 als Eingabeparameter für den Tag ist erlaubt, in diesem Fall wird der
+-- gesamte Monat betrachtet
+anzahl (2020,1,0) "*"
+2219
+
+anzahl (2020,1,0) "Hamburger"
+268
+
+-- Als String darf auch eine Kategorie übergeben werden
+anzahl (2020,1,1) "Hauptgericht"
+32
+
+-- Wird ein unplausibles Datum übergeben, wird als Ergebnis 0 zurückgeliefert.
+anzahl (0,0,0) "*"
+0
+
+-- Wird ein Artikel übergeben, der nicht im Artikelstamm vorhanden ist, soll
+-- eine entsprechende Fehlermeldung ausgegeben werden.
+-- Diese Fehlermeldung kann je nach Implementierung variieren.
+anzahl (2020,1,1) "Tomaten"
+Programm error: Artikel oder Kategorie nicht im Artikelstamm vorhanden
+
+--------------------------------------------------------------------------------
+-- Aufgabe 2
+-- umsatz :: (Int,Int,Int) -> String -> Float
+-- Liefert den Umsatz eines verkauften Artikels.
+--------------------------------------------------------------------------------
+
+umsatz (2020,1,1) "*"
+389.0
+
+umsatz (2020,1,1) "Hamburger"
+40.0
+
+umsatz (2020,1,0) "*"
+10370.0
+
+umsatz (2020,1,0) "Hamburger"
+2144.0
+
+umsatz (2020,1,1) "Hauptgericht"
+277.0
+
+-- Wird ein unplausibles Datum übergeben, wird als Ergebnis 0 zurückgeliefert.
+umsatz (0,0,0) "*"
+0.0
+
+-- Wird ein Artikel übergeben, der nicht im Artikelstamm vorhanden ist, soll
+-- eine entsprechende Fehlermeldung ausgegeben werden.
+-- Diese Fehlermeldung kann je nach Implementierung variieren.
+umsatz (2020,1,1) "Tomaten"
+Programm error: Artikel oder Kategorie nicht im Artikelstamm vorhanden
+
+--------------------------------------------------------------------------------
+-- Aufgabe 3
+-- gewinn :: (Int,Int,Int) -> String -> Float
+-- Liefert den Gewinn eines verkauften Artikels.
+--------------------------------------------------------------------------------
+
+gewinn (2020,1,1) "*"
+14.90108
+
+gewinn (2020,1,1) "Hamburger"
+2.789545
+
+gewinn (2020,1,0) "*"
+250.0
+
+gewinn (2020,1,0) "Hamburger"
+149.5196
+
+gewinn (2020,1,1) "Hautpgericht"
+25.35309
+
+-- Wird ein unplausibles Datum übergeben, wird als Ergebnis 0 zurückgeliefert.
+gewinn (0,0,0) "*"
+0.0
+
+-- Wird ein Artikel übergeben, der nicht im Artikelstamm vorhanden ist, soll
+-- eine entsprechende Fehlermeldung ausgegeben werden.
+-- Diese Fehlermeldung kann je nach Implementierung variieren.
+gewinn (2020,1,1) "Tomaten"
+Programm error: Artikel oder Kategorie nicht im Artikelstamm vorhanden
+
+--------------------------------------------------------------------------------
+-- Aufgabe 4
+-- Top-/Flop-Analyse
+--------------------------------------------------------------------------------
+
+topAnzahl (2020,1)
+("Wedges",307,0.1383506)
+
+flopAnzahl (2020,1)
+("Eistee",259,0.1167192)
+
+topUmsatz (2020,1)
+("Cheeseburger",2385.0,0.2299904)
+
+flopUmsatz (2020,1)
+("Wasser",415.5,0,0400675)
+
+topGewinn (2020,1)
+("Cheeseburger",280.3459,1.121384)
+
+flopGewinn (2020,1)
+("Pommes frites",-125.111755,-0.50044703)

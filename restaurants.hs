@@ -42,7 +42,7 @@ anzahl datum ausdruck = laenge (filterListe nachBezeichnungOderKategorie ausdruc
 umsatz :: (Int,Int,Int) -> String -> Float
 umsatz datum ausdruck = let gefilterteListe = (filterListe nachBezeichnungOderKategorie ausdruck (filterListe nachDatum datum buchungen))
                             artikelListe = [ getArtikel artikelNr | ((_, _, _), (_, _), artikelNr) <- gefilterteListe ]
-                        in falteListe (+) [ preis | (_, _, _, preis, _) <- artikelListe ]
+                        in if artikelListe == [] then 0.0 else falteListe (+) [ preis | (_, _, _, preis, _) <- artikelListe ]
 
 -- Aufgabe 3: Gewinn
 
@@ -52,7 +52,7 @@ umsatz datum ausdruck = let gefilterteListe = (filterListe nachBezeichnungOderKa
 gewinn :: (Int,Int,Int) -> String -> Float
 gewinn datum ausdruck = let gefilterteListe = (filterListe nachBezeichnungOderKategorie ausdruck (filterListe nachDatum datum buchungen))
                             artikelListe = [ getArtikel artikelNr | ((_, _, _), (_, _), artikelNr) <- gefilterteListe ]
-                        in umsatz datum ausdruck - einzelkostenGesamt artikelListe - (gemeinkosten (monat datum)) * fromIntegral (laenge artikelListe)
+                        in if artikelListe == [] then 0.0 else umsatz datum ausdruck - einzelkostenGesamt artikelListe - (gemeinkosten (monat datum)) * fromIntegral (laenge artikelListe)
     where monat (j, m, _) = (j, m)
 
 -- Aufgabe 4: Top-/Flop-Analyse
