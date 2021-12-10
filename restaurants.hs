@@ -83,27 +83,22 @@ flopGewinn (jahr, monat) = let gesamt = gewinn (jahr, monat, 0) "*"
 
 -- Hilfsfunktionen
 
-top :: Ord a => [(String,a,Float)] -> (String,a,Float)
-top [x] = x
-top ((bez,wert,prozentual):xs)
-    | groesser xs wert = top xs
+analyse :: Ord a => [(String,a,Float)] -> (a -> a -> Bool) -> (String,a,Float)
+analyse [x] _ = x
+analyse ((bez,wert,prozentual):xs) vglFunktion
+    | vergleich xs wert = analyse xs vglFunktion
     | otherwise = (bez,wert,prozentual)
     where
-        groesser [(_, w, _)] wert = w > wert
-        groesser ((_, w, _):xs) wert
-            | w > wert = True
-            | otherwise = groesser xs wert
+        vergleich [(_, w, _)] wert = w > wert
+        vergleich ((_, w, _):xs) wert
+            | vglFunktion w wert = True
+            | otherwise = vergleich xs wert
+
+top :: Ord a => [(String,a,Float)] -> (String,a,Float)
+top a = analyse a (\x y -> x > y)
 
 flop :: Ord a => [(String,a,Float)] -> (String,a,Float)
-flop [x] = x
-flop ((bez,wert,prozentual):xs)
-    | kleiner xs wert = flop xs
-    | otherwise = (bez, wert,prozentual)
-    where
-        kleiner [(_, w, _)] wert = w < wert
-        kleiner ((_, w, _):xs) wert
-            | w < wert = True
-            | otherwise = kleiner xs wert
+flop a = analyse a (\x y -> x < y)
 
 {- Funktion einzelkostenGesamt gibt die Summe der Einzelkosten aller Artikel in der übergebenen Liste zurüc
     Artikelliste ([(Int,String,String,Float,Float]) definiert mit Artikelnummer, Artikelbezeichnung, Kategorie, Preis, Einzelkosten -}
