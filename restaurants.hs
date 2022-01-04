@@ -59,36 +59,41 @@ artikelListeNachBezeichnungUndDatum datum ausdruck = [ getArtikel artikelNr | ((
 
 -- Aufgabe 4: Top-/Flop-Analyse
 
+{- Funktion topAnzahl gibt den stärksten Artikel hinsichtlich der Anzahl von Verkäufen in einem Monat aus. -}
 topAnzahl :: (Int, Int) -> (String,Int,Float)
 topAnzahl (jahr, monat) = let gesamt = anzahl (jahr, monat, 0) "*"
                           in top [ (bez, wert, prozentual) | (_, bez, _, _, _) <- artikel, let wert = anzahl (jahr, monat, 0) bez, let prozentual = fromIntegral wert / fromIntegral gesamt ]
 
-topAnzahl' :: (Int, Int) -> (String,Int,Float)
-topAnzahl' (jahr, monat) = let gesamt = anzahl (jahr, monat, 0) "*"
-                           in top [ (bez, wert, prozentual) | (_, bez, _, _, _) <- artikel, let wert = anzahl (jahr, monat, 0) bez, let prozentual = fromIntegral wert / fromIntegral gesamt ]
-
+{- Funktion flopAnzahl gibt den schwächsten Artikel hinsichtlich der Anzahl von Verkäufen in einem Monat aus. -}
 flopAnzahl :: (Int, Int) -> (String,Int,Float)
 flopAnzahl (jahr, monat) = let gesamt = anzahl (jahr, monat, 0) "*"
                            in flop [ (bez, wert, prozentual) | (_, bez, _, _, _) <- artikel, let wert = anzahl (jahr, monat, 0) bez, let prozentual = fromIntegral wert / fromIntegral gesamt ]
 
+{- Funktion topUmsatz gibt den stärksten Artikel hinsichtlich des Umsatzes von Verkäufen in einem Monat aus. -}
 topUmsatz :: (Int, Int) -> (String,Float,Float)
 topUmsatz (jahr, monat) = let gesamt = umsatz (jahr, monat, 0) "*"
                           in top [ (bez, wert, prozentual) | (_, bez, _, _, _) <- artikel, let wert = umsatz (jahr, monat, 0) bez, let prozentual = wert / gesamt ]
 
+{- Funktion flopUmsatz gibt den schwächsten Artikel hinsichtlich des Umsatzes von Verkäufen in einem Monat aus. -}
 flopUmsatz :: (Int, Int) -> (String,Float,Float)
 flopUmsatz (jahr, monat) = let gesamt = umsatz (jahr, monat, 0) "*"
                            in flop [ (bez, wert, prozentual) | (_, bez, _, _, _) <- artikel, let wert = umsatz (jahr, monat, 0) bez, let prozentual = wert / gesamt ]
 
+{- Funktion topGewinn gibt den stärksten Artikel hinsichtlich des Gewinns von Verkäufen in einem Monat aus. -}
 topGewinn :: (Int, Int) -> (String,Float,Float)
 topGewinn (jahr, monat) = let gesamt = gewinn (jahr, monat, 0) "*"
                           in top [ (bez, wert, prozentual) | (_, bez, _, _, _) <- artikel, let wert = gewinn (jahr, monat, 0) bez, let prozentual = wert / gesamt ]
 
+{- Funktion flopGewinn gibt den schwächsten Artikel hinsichtlich des Gewinns von Verkäufen in einem Monat aus. -}
 flopGewinn :: (Int, Int) -> (String,Float,Float)
 flopGewinn (jahr, monat) = let gesamt = gewinn (jahr, monat, 0) "*"
                            in flop [ (bez, wert, prozentual) | (_, bez, _, _, _) <- artikel, let wert = gewinn (jahr, monat, 0) bez, let prozentual = wert / gesamt ]
 
 -- Hilfsfunktionen
 
+{- Funktion analyse gibt ein Element aus einer Liste nach einer zu definierenden Vorschrift aus
+    Liste ([(String,a,Float)]) definiert eine Liste mit (Artikelbezeichnung,Wert,Prozentualer Anteil)
+    Funktion (a -> a -> Bool) definiert die Vorschrift, mit der das Listenelement gefiltert werden soll -}
 analyse :: Ord a => [(String,a,Float)] -> (a -> a -> Bool) -> (String,a,Float)
 analyse [x] _ = x
 analyse ((bez,wert,prozentual):xs) vglFunktion
@@ -100,9 +105,11 @@ analyse ((bez,wert,prozentual):xs) vglFunktion
             | vglFunktion w wert = True
             | otherwise = vergleich xs wert
 
+{- Funktion top filtert das Listenelement aus einer Liste, dessen Wert a das Maximum in der Liste ist -}
 top :: Ord a => [(String,a,Float)] -> (String,a,Float)
 top a = analyse a (\x y -> x > y)
 
+{- Funktion flop filter das Listenelement aus einer Liste, dessen Wert a das Minimum in der Liste ist -}
 flop :: Ord a => [(String,a,Float)] -> (String,a,Float)
 flop a = analyse a (\x y -> x < y)
 
@@ -122,8 +129,8 @@ gemeinkosten (jahr, monat) = ((helper pacht) + (helper loehne)) / fromIntegral (
             | otherwise = helper xs
 
 {- Funktion nachDatum überprüft, ob eine Buchung an einem bestimmten Datum getätigt wurde
-    Buchung ((Int,Int,Int),(Int,Int),Int) definiert (Jahr, Monat, Tag), (Stunde, Minute), Artikelnummer
     Datum (Int,Int,Int) definiert (Jahr, Monat Tag)
+    Buchung ((Int,Int,Int),(Int,Int),Int) definiert (Jahr, Monat, Tag), (Stunde, Minute), Artikelnummer
    Wird Tag=0 übergeben, so werden nur Jahr und Monat auf Gleichheit überprüft -}
 nachDatum :: (Int, Int, Int) -> ((Int,Int,Int),(Int,Int),Int) -> Bool
 nachDatum (j, m, t) ((jahr, monat, tag), (_, _), _)
@@ -131,8 +138,8 @@ nachDatum (j, m, t) ((jahr, monat, tag), (_, _), _)
     | otherwise = jahr == j && monat == m && tag == t
 
 {- Funktion nachBezeichnungOderKategorie überprüft, ob mit einer Buchung ein Artikel einer bestimmten Kategorie oder Bezeichnung gebucht wurde
-    Buchung ((Int,Int,Int),(Int,Int),Int) definiert (Jahr, Monat, Tag), (Stunde, Minute), Artikelnummer
     Suchparameter (String)
+    Buchung ((Int,Int,Int),(Int,Int),Int) definiert (Jahr, Monat, Tag), (Stunde, Minute), Artikelnummer
    Wird als Suchparameter "*" übergeben, wird in jedem Fall True zurückgegeben -}
 nachBezeichnungOderKategorie :: String -> ((Int,Int,Int),(Int,Int),Int) -> Bool
 nachBezeichnungOderKategorie "*" _ = True
