@@ -32,10 +32,7 @@ buchungen = [((2020,1,1),(17,0),3),((2020,1,1),(17,9),3),((2020,1,1),(17,16),2),
     Datum (Int,Int,Int) definiert mit Jahr, Monat und Tag, bei Tag=0 wird die Anzahl verkaufter Artikel im Monat zurückgegeben
     Artikelbezeichnung (String) -}
 anzahl :: (Int,Int,Int) -> String -> Int
-anzahl datum ausdruck = laenge (filterListe nachBezeichnungOderKategorie ausdruck (filterListe nachDatum datum buchungen))
-
-anzahl' :: (Int,Int,Int) -> String -> Int
-anzahl' datum ausdruck = length (filter (nachBezeichnungOderKategorie' ausdruck) (filter (nachDatum' datum) buchungen))
+anzahl datum ausdruck = length (filter (nachBezeichnungOderKategorie ausdruck) (filter (nachDatum datum) buchungen))
 
 -- Aufgabe 2: Der Umsatz
 
@@ -43,48 +40,23 @@ anzahl' datum ausdruck = length (filter (nachBezeichnungOderKategorie' ausdruck)
     Datum (Int,Int,Int) definiert mit Jahr, Monat und Tag, bei Tag=0 wird der Umsatz der verkauften Artikel im Monat zurückgegeben
     Artikelbezeichnung (String) -}
 umsatz :: (Int,Int,Int) -> String -> Float
-umsatz datum ausdruck = let gefilterteListe = (filterListe nachBezeichnungOderKategorie ausdruck (filterListe nachDatum datum buchungen))
-                            artikelListe = [ getArtikel artikelNr | ((_, _, _), (_, _), artikelNr) <- gefilterteListe ]
-                        in if artikelListe == [] then 0.0 else falteListe (+) [ preis | (_, _, _, preis, _) <- artikelListe ]
-
-umsatz' :: (Int,Int,Int) -> String -> Float
-umsatz' datum ausdruck = let gefilterteListe = (filter (nachBezeichnungOderKategorie' ausdruck) (filter (nachDatum' datum) buchungen))
-                             artikelListe = [ artikel!!(artikelNr-1) | ((_, _, _), (_, _), artikelNr) <- gefilterteListe ]
-                         in foldr (+) 0.0 [ preis | (_, _, _, preis, _) <- artikelListe ]
-
-umsatz'' :: (Int,Int,Int) -> String -> Float
-umsatz'' datum ausdruck = let gefilterteListe = (filter (nachBezeichnungOderKategorie' ausdruck) (filter (nachDatum' datum) buchungen))
-                          in foldr (+) 0.0 (map preisZuArtikel gefilterteListe)
-                        
-preisZuArtikel :: ((Int, Int, Int), (Int, Int), Int) -> Float
-preisZuArtikel ((_, _, _), (_, _), artikelNr) = let (_, _, _, preis, _) = artikel !! (artikelNr -1)
-												in preis
-
-umsatz''' :: (Int,Int,Int) -> String -> Float
-umsatz''' datum ausdruck = foldr (+) 0.0 (map (\(_,_,_,preis,_) -> preis) (artikelListeNachBezeichnungUndDatum datum ausdruck))
+umsatz datum ausdruck = foldr (+) 0.0 (map (\(_,_,_,preis,_) -> preis) (artikelListeNachBezeichnungUndDatum datum ausdruck))
 
 filterListeNachBezeichnungUndDatum :: (Int,Int,Int) -> String -> [((Int,Int,Int),(Int,Int),Int)]
-filterListeNachBezeichnungUndDatum datum ausdruck = filter (nachBezeichnungOderKategorie' ausdruck) (filter (nachDatum' datum) buchungen)
+filterListeNachBezeichnungUndDatum datum ausdruck = filter (nachBezeichnungOderKategorie ausdruck) (filter (nachDatum datum) buchungen)
+
 -- Aufgabe 3: Gewinn
 
 {- Funktion gewinn gibt den Gewinn eines bestimmten Tages oder Monats zurück
     Datum (Int,Int,Int) definiert mit Jahr, Monat und Tag, bei Tag=0 wird der Gewinn der verkauften Artikel im Monat zurückgegeben
     Artikelbezeichnung (String) -}
 gewinn :: (Int,Int,Int) -> String -> Float
-gewinn datum ausdruck = let gefilterteListe = (filterListe nachBezeichnungOderKategorie ausdruck (filterListe nachDatum datum buchungen))
-                            artikelListe = [ getArtikel artikelNr | ((_, _, _), (_, _), artikelNr) <- gefilterteListe ]
-                        in if artikelListe == [] then 0.0 else umsatz datum ausdruck - einzelkostenGesamt artikelListe - (gemeinkosten (monat datum)) * fromIntegral (laenge artikelListe)
-    where monat (j, m, _) = (j, m)
-
-gewinn' :: (Int,Int,Int) -> String -> Float
-gewinn' datum ausdruck = umsatz datum ausdruck - einzelkostenGesamt'' datum ausdruck - (gemeinkosten (monat datum)) * fromIntegral (length (artikelListeNachBezeichnungUndDatum datum ausdruck))
+gewinn datum ausdruck = umsatz datum ausdruck - einzelkostenGesamt datum ausdruck - (gemeinkosten (monat datum)) * fromIntegral (length (artikelListeNachBezeichnungUndDatum datum ausdruck))
     where monat (j, m, _) = (j, m)
 
 artikelListeNachBezeichnungUndDatum :: (Int,Int,Int) -> String -> [(Int,String,String,Float,Float)]
-artikelListeNachBezeichnungUndDatum datum ausdruck = [ artikel!!(artikelNr-1) | ((_, _, _), (_, _), artikelNr) <- (filterListeNachBezeichnungUndDatum datum ausdruck) ]
+artikelListeNachBezeichnungUndDatum datum ausdruck = [ getArtikel artikelNr | ((_, _, _), (_, _), artikelNr) <- (filterListeNachBezeichnungUndDatum datum ausdruck) ]
 
---gewinn'' :: (Int,Int,Int) -> String -> Float
---gewinn'' datum ausdruck = if artikelListe == [] then 0.0 else umsatz''' datum ausdruck - einzelkostenGesamt artikelListe - (gemeinkosten (monat datum)) * fromIntegral (length artikelListe)
 -- Aufgabe 4: Top-/Flop-Analyse
 
 topAnzahl :: (Int, Int) -> (String,Int,Float)
@@ -123,7 +95,7 @@ analyse ((bez,wert,prozentual):xs) vglFunktion
     | vergleich xs wert = analyse xs vglFunktion
     | otherwise = (bez,wert,prozentual)
     where
-        vergleich [(_, w, _)] wert = w > wert
+        vergleich [(_, w, _)] wert = vglFunktion w wert
         vergleich ((_, w, _):xs) wert
             | vglFunktion w wert = True
             | otherwise = vergleich xs wert
@@ -134,22 +106,14 @@ top a = analyse a (\x y -> x > y)
 flop :: Ord a => [(String,a,Float)] -> (String,a,Float)
 flop a = analyse a (\x y -> x < y)
 
-{- Funktion einzelkostenGesamt gibt die Summe der Einzelkosten aller Artikel in der übergebenen Liste zurüc
+{- Funktion einzelkostenGesamt gibt die Summe der Einzelkosten aller Artikel in der übergebenen Liste zurück
     Artikelliste ([(Int,String,String,Float,Float]) definiert mit Artikelnummer, Artikelbezeichnung, Kategorie, Preis, Einzelkosten -}
-einzelkostenGesamt :: [(Int,String,String,Float,Float)] -> Float
-einzelkostenGesamt artikelListe = falteListe (+) [ kosten | (_, _, _, _, kosten) <- artikelListe ]
-
-einzelkostenGesamt' :: [(Int,String,String,Float,Float)] -> Float
-einzelkostenGesamt' artikelListe = foldr (+) 0.0 [ kosten | (_, _, _, _, kosten) <- artikelListe ]
-
---wie umsatz gestaltet
-einzelkostenGesamt'' :: (Int,Int,Int) -> String -> Float
-einzelkostenGesamt'' datum ausdruck = foldr (+) 0.0 (map (\(_,_,_,_,kosten) -> kosten) (artikelListeNachBezeichnungUndDatum datum ausdruck))
+einzelkostenGesamt :: (Int,Int,Int) -> String -> Float
+einzelkostenGesamt datum ausdruck = foldr (+) 0.0 (map (\(_,_,_,_,kosten) -> kosten) (artikelListeNachBezeichnungUndDatum datum ausdruck))
 
 {- Funktion gemeinkosten gibt die Gemeinkosten für einen Monat zurück, die auf einen Artikel in diesem Monat verfallen
     Datum (Int,Int) definiert mit Jahr, Monat -}
 gemeinkosten :: (Int,Int) -> Float
--- Gemeinkosten für einen Artikel: Pacht + Lohn / Anzahl verkaufter Artikel
 gemeinkosten (jahr, monat) = ((helper pacht) + (helper loehne)) / fromIntegral (anzahl (jahr, monat, 0) "*")
     where
         helper [] = 0
@@ -157,37 +121,12 @@ gemeinkosten (jahr, monat) = ((helper pacht) + (helper loehne)) / fromIntegral (
             | jahr == j && monat == m = kosten
             | otherwise = helper xs
 
-{- Funktion filterListe filtert eine Liste nach einer gegebenen Filterfunktion f
-    Filterfunktion (a -> b -> Bool) - Filter für ein einzelnes Element a mit einem Suchparameter b liefert True oder False
-    Suchparameter (b)
-    Liste ([a]) -}
-filterListe :: (a -> b -> Bool) -> b -> [a] -> [a]
-filterListe _ _ [] = []
-filterListe f b (x:xs)
-    | f x b = x : filterListe f b xs
-    | otherwise = filterListe f b xs
-	
-
-{- Funktion falteListe aggregiert eine Liste von links nach rechts mit einer gegebenen Faltungsfunktion f
-    Faltungsfunktion (a -> a -> a) - Aggregation von zwei aufeinanderfolgenden Elementen einer Liste
-    Liste ([a]) -}
-falteListe :: (a -> a -> a) -> [a] -> a
-falteListe f (x:xs) = helper x xs
-    where
-        helper erg [] = erg
-        helper erg (x:xs) = helper (f erg x) xs
-
 {- Funktion nachDatum überprüft, ob eine Buchung an einem bestimmten Datum getätigt wurde
     Buchung ((Int,Int,Int),(Int,Int),Int) definiert (Jahr, Monat, Tag), (Stunde, Minute), Artikelnummer
     Datum (Int,Int,Int) definiert (Jahr, Monat Tag)
    Wird Tag=0 übergeben, so werden nur Jahr und Monat auf Gleichheit überprüft -}
-nachDatum :: ((Int,Int,Int),(Int,Int),Int) -> (Int, Int, Int) -> Bool
-nachDatum ((jahr, monat, tag), (_, _), _) (j, m, t)
-    | t == 0 = jahr == j && monat == m
-    | otherwise = jahr == j && monat == m && tag == t
-
-nachDatum' :: (Int, Int, Int) -> ((Int,Int,Int),(Int,Int),Int) -> Bool
-nachDatum' (j, m, t) ((jahr, monat, tag), (_, _), _)
+nachDatum :: (Int, Int, Int) -> ((Int,Int,Int),(Int,Int),Int) -> Bool
+nachDatum (j, m, t) ((jahr, monat, tag), (_, _), _)
     | t == 0 = jahr == j && monat == m
     | otherwise = jahr == j && monat == m && tag == t
 
@@ -195,17 +134,9 @@ nachDatum' (j, m, t) ((jahr, monat, tag), (_, _), _)
     Buchung ((Int,Int,Int),(Int,Int),Int) definiert (Jahr, Monat, Tag), (Stunde, Minute), Artikelnummer
     Suchparameter (String)
    Wird als Suchparameter "*" übergeben, wird in jedem Fall True zurückgegeben -}
-nachBezeichnungOderKategorie :: ((Int,Int,Int),(Int,Int),Int) -> String -> Bool
-nachBezeichnungOderKategorie _ "*" = True
-nachBezeichnungOderKategorie ((_, _, _), (_, _), artikelNr) ausdruck
-    -- Überprüfe zuerst, ob der Ausdruck einem Artikel oder einer Kategorie im Artikelstamm entspricht
-    | inArtikelstamm ausdruck == False = error "Artikel oder Kategorie nicht im Artikelstamm vorhanden"
-    | otherwise = let ((_, bez, kategorie, _, _)) = getArtikel artikelNr
-                  in bez == ausdruck || kategorie == ausdruck
-
-nachBezeichnungOderKategorie' :: String -> ((Int,Int,Int),(Int,Int),Int) -> Bool
-nachBezeichnungOderKategorie' "*" _ = True
-nachBezeichnungOderKategorie' ausdruck ((_, _, _), (_, _), artikelNr)
+nachBezeichnungOderKategorie :: String -> ((Int,Int,Int),(Int,Int),Int) -> Bool
+nachBezeichnungOderKategorie "*" _ = True
+nachBezeichnungOderKategorie ausdruck ((_, _, _), (_, _), artikelNr)
     -- Überprüfe zuerst, ob der Ausdruck einem Artikel oder einer Kategorie im Artikelstamm entspricht
     | inArtikelstamm ausdruck == False = error "Artikel oder Kategorie nicht im Artikelstamm vorhanden"
     | otherwise = let ((_, bez, kategorie, _, _)) = getArtikel artikelNr
@@ -231,9 +162,3 @@ getArtikel artikelNr = helper artikel artikelNr
         helper ((artNr, bez, kategorie, preis, einzelkosten):xs) artikelNr
             | artikelNr == artNr = (artNr, bez, kategorie, preis, einzelkosten)
             | otherwise = helper xs artikelNr
-
-{- Funktion laenge gibt die Länge einer Liste zurück
-    Liste [a] -}
-laenge :: [a] -> Int
-laenge [] = 0
-laenge (x:xs) = 1 + laenge xs
