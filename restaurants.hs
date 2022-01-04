@@ -1,3 +1,10 @@
+{- Gruppe 13:
+   Leon Jung
+   Sophie Ripke
+   Stephan Höhn
+   Justus Röderer
+-}
+
 {- Funktion artikel gibt den Artikelstamm zurück
     Artikelnummer (Int)
     Artikelbezeichnung (String)
