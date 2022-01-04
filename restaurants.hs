@@ -89,7 +89,7 @@ analyse ((bez,wert,prozentual):xs) vglFunktion
     | vergleich xs wert = analyse xs vglFunktion
     | otherwise = (bez,wert,prozentual)
     where
-        vergleich [(_, w, _)] wert = w > wert
+        vergleich [(_, w, _)] wert = vglFunktion w wert
         vergleich ((_, w, _):xs) wert
             | vglFunktion w wert = True
             | otherwise = vergleich xs wert
@@ -100,7 +100,7 @@ top a = analyse a (\x y -> x > y)
 flop :: Ord a => [(String,a,Float)] -> (String,a,Float)
 flop a = analyse a (\x y -> x < y)
 
-{- Funktion einzelkostenGesamt gibt die Summe der Einzelkosten aller Artikel in der übergebenen Liste zurüc
+{- Funktion einzelkostenGesamt gibt die Summe der Einzelkosten aller Artikel in der übergebenen Liste zurück
     Artikelliste ([(Int,String,String,Float,Float]) definiert mit Artikelnummer, Artikelbezeichnung, Kategorie, Preis, Einzelkosten -}
 einzelkostenGesamt :: [(Int,String,String,Float,Float)] -> Float
 einzelkostenGesamt artikelListe = falteListe (+) [ kosten | (_, _, _, _, kosten) <- artikelListe ]
